@@ -1,10 +1,8 @@
-use day1::two::please_work_again;
+use day2::{one::please_work, two::please_work_again};
 
-use crate::day1::one::please_work;
-
-mod day1;
+mod day2;
 
 fn main() {
     please_work();
-    please_work_again();
+    please_work_again()
 }
