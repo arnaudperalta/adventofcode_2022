@@ -1,8 +1,8 @@
-use std::{fs::File, io::{BufReader, BufRead}};
+use std::{fs::File, io::{BufReader, BufRead}, collections::VecDeque};
 
 pub fn please_work() {
     let file = File::open("./src/day6/input").unwrap();
-    let mut buffer = Vec::<char>::new();
+    let mut buffer = VecDeque::<char>::new();
     for line in BufReader::new(file).lines() {
         let content = line.unwrap();
         if content.is_empty() {
@@ -11,7 +11,7 @@ pub fn please_work() {
         for (i, c) in content.chars().enumerate() {
             if buffer.len() >= 3 {
                 if buffer.iter().any(|&i| i == c) {
-                    buffer.remove(0);
+                    buffer.pop_back();
                 } else {
                     if !(buffer.get(0).unwrap() == buffer.get(1).unwrap())
                             && !(buffer.get(0).unwrap() == buffer.get(2).unwrap())
@@ -21,7 +21,7 @@ pub fn please_work() {
                     }
                 }
             }
-            buffer.push(c);
+            buffer.push_front(c);
         }
     }
 }

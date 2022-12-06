@@ -1,53 +1,33 @@
-use std::{fs::File, io::{BufReader, BufRead}};
+use std::{fs::File, io::{BufReader, BufRead}, collections::VecDeque};
 
 pub fn please_work_again() {
-    let file = File::open("./src/day5/input").unwrap();
-    let buffer = BufReader::new(file).lines();
-    let mut stack_count = 0;
-    let mut stacks: Vec<Vec<char>> = vec![];
-    let mut now_instructions = false;
-    let mut aux_stack = Vec::new();
-    for line in buffer {
+    let file = File::open("./src/day6/input").unwrap();
+    let mut buffer = VecDeque::<char>::new();
+    for line in BufReader::new(file).lines() {
         let content = line.unwrap();
-        if now_instructions {
-            let splits = content.split(" ").collect::<Vec<&str>>();
-            let number_of_move = splits[1].parse::<usize>().unwrap();
-            let from = splits[3].parse::<usize>().unwrap() - 1;
-            let to = splits[5].parse::<usize>().unwrap() - 1;
-
-            for _ in 0..number_of_move {
-                let value = stacks.get_mut(from).unwrap().pop().unwrap();
-                aux_stack.push(value);
-            }
-            for _ in 0..number_of_move {
-                let value = aux_stack.pop().unwrap();
-                stacks.get_mut(to).unwrap().push(value);
-            }
-        }
         if content.is_empty() {
-            now_instructions = true;
+            break;
         }
-        if stack_count == 0 {
-            stack_count = content.len() / 4 + 1;
-            for _ in 0..stack_count {
-                stacks.push(Vec::new());
-            }
-        }
-        let mut next_is_crate = false;
         for (i, c) in content.chars().enumerate() {
-            if next_is_crate {
-                let actual_stack = i / 4;
-                stacks.get_mut(actual_stack).unwrap().insert(0, c);
-                next_is_crate = false;
+            if buffer.len() >= 13 {
+                if !(buffer.iter().any(|&i| i == c)) {
+                    let mut is_bad = false;
+                    for (i, element) in buffer.iter().enumerate() {
+                        for (j, second_element) in buffer.iter().enumerate() {
+                            if i != j && *element == *second_element {
+                                is_bad = true;
+                                break;
+                            }
+                        }
+                    }
+                    if !is_bad {
+                        println!("{}", i + 1);
+                        return;
+                    }
+                }
+                buffer.pop_back();
             }
-            if c == '[' {
-                next_is_crate = true;
-            }
+            buffer.push_front(c);
         }
     }
-    for i in 0..stack_count {
-        let value = stacks.get_mut(i).unwrap().pop().unwrap();
-        print!("{}", value);
-    }
-    print!("\n");
 }
