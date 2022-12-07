@@ -1,6 +1,6 @@
-use day6::{one::please_work, two::please_work_again};
+use day7::{one::please_work, two::please_work_again};
 
-mod day6;
+mod day7;
 
 fn main() {
     please_work();
