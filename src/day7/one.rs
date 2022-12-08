@@ -1,60 +1,48 @@
-use std::{fs::{File, read_to_string}, io::{BufReader, BufRead}};
+use std::{fs::read_to_string, io::BufRead, rc::Rc, cell::RefCell, borrow::Borrow};
+
+struct TreeNode {
+    folder_name: String,
+    folder_size: usize,
+    parent: Option<Rc<RefCell<TreeNode>>>,
+    children: Vec<Rc<RefCell<TreeNode>>> // only folders are children
+}
 
 pub fn please_work() {
     let text = read_to_string("./src/day7/input").unwrap();
-    let mut size_stack = Vec::<usize>::new();
-    for (i, line) in text.lines().enumerate() {
-        if line.is_empty() {
-            break;
-        }
-        if i < 2 {
-            continue;
-        }
-        if line.contains("dir") {
-            let dir_name = line.split("dir ").nth(1).unwrap();
-            get_directory_size(text.clone(), dir_name, &mut size_stack);
-        }
-    }
-    let mut total = 0;
-    for size in size_stack.iter() {
-        println!("{}", size);
-        total += size;
-    }
-    println!("TOTAL {}", total);
-}
-
-fn get_directory_size(text: String, name: &str, sizes: &mut Vec<usize>) -> usize {
-    let mut skip_lines = -1;
-    let command = "$ cd ".to_owned() + name;
-    let mut size = 0;
+    let root = Rc::new(RefCell::new(TreeNode {
+        folder_name: "/".to_string(),
+        folder_size: 0,
+        parent: None,
+        children: vec![]
+    }));
+    let mut actual_node = Rc::clone(&root);
     for line in text.lines() {
-        if line.contains(command.as_str()) {
-            skip_lines = 2;
-        }
-        if skip_lines > 0 {
-            skip_lines -= 1;
+        if line.contains("cd /") {
             continue;
         }
-        if skip_lines == 0 {
-            if line.contains("dir ") {
-                let dir_name = line.split("dir ").nth(1).unwrap();
-                size += get_directory_size(text.clone(), dir_name, sizes);
-            } else if line.contains("$") {
-                break;
-            } else {
-                let file_size = line.split(" ").next().unwrap().parse::<usize>();
-                match file_size {
-                    Ok(v) => size += v,
-                    Err(_) => ()
+        if line.contains("cd ") {
+            let node_to_switch: RefCell<TreeNode>;
+            let folder_name = line.split("$ cd ").nth(1).unwrap();
+            for node in actual_node.children {
+                if node.borrow() == folder_name {
+                    actual_node = node.borrow();
+                    break;
                 }
             }
         }
-    }
-    if size < 100000 {
-        if !(sizes.iter().any(|&i| i == size)) {
-            println!("{}", size);
-            sizes.push(size.to_owned());
+        if line.contains("dir ") {
+            let new_child = Rc::new(RefCell::new(TreeNode {
+                folder_name: line.split("dir ").nth(1).unwrap().to_string(),
+                folder_size: 0,
+                parent: Some(actual_node),
+                children: vec![]
+            }));
+            actual_node.children.push(Rc::new(RefCell::new(new_child)));
+            continue;
+        }
+        if !line.contains("$") {
+            let file_size = line.split(" ").nth(0).unwrap().parse::<usize>().unwrap();
+            println!("{}", file_size);
         }
     }
-    return size;
 }
