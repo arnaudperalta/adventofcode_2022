@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, io::BufRead, rc::Rc, cell::RefCell, borrow::Borrow};
+use std::{fs::read_to_string, rc::Rc, cell::RefCell};
 
 struct TreeNode {
     folder_name: String,
@@ -21,11 +21,10 @@ pub fn please_work() {
             continue;
         }
         if line.contains("cd ") {
-            let node_to_switch: RefCell<TreeNode>;
             let folder_name = line.split("$ cd ").nth(1).unwrap();
-            for node in actual_node.children {
-                if node.borrow() == folder_name {
-                    actual_node = node.borrow();
+            for node in actual_node.borrow_mut().children.iter() {
+                if node.borrow_mut().folder_name == folder_name {
+                    actual_node = Rc::clone(node);
                     break;
                 }
             }
@@ -37,7 +36,7 @@ pub fn please_work() {
                 parent: Some(actual_node),
                 children: vec![]
             }));
-            actual_node.children.push(Rc::new(RefCell::new(new_child)));
+            actual_node.borrow_mut().children.push(new_child);
             continue;
         }
         if !line.contains("$") {
