@@ -72,7 +72,6 @@ pub fn please_work_again() {
 fn get_sizes(tree: Rc<RefCell<TreeNode>>, sizes: &mut Vec<usize>, base_size: usize) {
     if 70000000 - base_size + tree.borrow_mut().folder_size > 30000000 {
         let wesh = tree.borrow();
-        println!("name {}, size {}", wesh.folder_name, wesh.folder_size);
         sizes.push(wesh.folder_size);
     }
     for node in tree.borrow_mut().children.iter() {
