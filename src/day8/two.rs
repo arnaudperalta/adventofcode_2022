@@ -24,39 +24,37 @@ pub fn please_work_again() {
                 continue;
             }
             let tree_value = grid.get(i).unwrap().get(j).unwrap().to_digit(10).unwrap();
+
             // Check from left
-            let mut left_score = 1;
-            for left in j - 1 .. 0 {
-                if grid.get(i).unwrap().get(left).unwrap().to_digit(10).unwrap() < tree_value {
-                    left_score += 1;
-                } else {
+            let mut left_score = 0;
+            for left in (0..j).rev() {
+                left_score += 1;
+                if grid.get(i).unwrap().get(left).unwrap().to_digit(10).unwrap() >= tree_value {
                     break;
                 }
             }
             // Check from right
-            let mut right_score = 1;
+            let mut right_score = 0;
             for right in j + 1 .. width {
-                if grid.get(i).unwrap().get(right).unwrap().to_digit(10).unwrap() < tree_value {
-                    right_score += 1;
-                } else {
+                right_score += 1;
+                if grid.get(i).unwrap().get(right).unwrap().to_digit(10).unwrap() >= tree_value {
                     break;
                 }
             }
+
             // Check from top
-            let mut top_score = 1;
-            for top in i - 1 .. 0 {
-                if grid.get(top).unwrap().get(j).unwrap().to_digit(10).unwrap() < tree_value {
-                    top_score += 1;
-                } else {
+            let mut top_score = 0;
+            for top in (0..i).rev() {
+                top_score += 1;
+                if grid.get(top).unwrap().get(j).unwrap().to_digit(10).unwrap() >= tree_value {
                     break;
                 }
             }
             // Check from bottom
-            let mut bottom_score = 1;
+            let mut bottom_score = 0;
             for bottom in i + 1 .. height {
-                if grid.get(bottom).unwrap().get(j).unwrap().to_digit(10).unwrap() < tree_value {
-                    bottom_score += 1;
-                } else {
+                bottom_score += 1;
+                if grid.get(bottom).unwrap().get(j).unwrap().to_digit(10).unwrap() >= tree_value {
                     break;
                 }
             }
@@ -64,7 +62,7 @@ pub fn please_work_again() {
             if actual_score > best_score {
                 best_score = actual_score;
             }
-            // println!("actual {} top {} bot {} right {} left {} {} {}", actual_score, top_score, bottom_score, right_score, left_score, i, j);
+            // println!("actual {} top {} bot {} right {} left {} {} {} {}", actual_score, top_score, bottom_score, right_score, left_score, i, j, tree_value);
         }
     }
     println!("{}", best_score);
